@@ -15,10 +15,12 @@ public class SerialExecutor<T> implements Executor<T> {
   private List<T> validResults = new ArrayList<T>();
   private List<T> invalidResults = new ArrayList<T>();
 
+  private  boolean executed = false;
 
   @Override
   public void addTask(Task<? extends T> task) {
-    tasks.add(new TaskAndValidator<T>(task, null));
+    checkNotExecuted();
+    addTask(task,DEFAULT_VALIDATOR);
   }
 
   @Override
@@ -32,31 +34,44 @@ public class SerialExecutor<T> implements Executor<T> {
   /*Давайте имплентировать дальше*/
   @Override
   public void execute() {
+    checkNotExecuted();
     for (TaskAndValidator<T> taskAndValidator : tasks) {
       Task<? extends T> task = taskAndValidator.task;
       task.execute();
-      if (taskAndValidator.validator != null) {
         if (taskAndValidator.validator.isValid(task.getResult())) {
           validResults.add(task.getResult());
         } else {
           invalidResults.add(task.getResult());
         }
-      } else {
-        validResults.add(task.getResult());
-      }
     }
+    executed = true;
   }
 
   @Override
   public List<T> getValidResults() {
+    checkExecuted();
     return validResults;
   }
 
   @Override
   public List<T> getInvalidResults() {
+    checkExecuted();
     return invalidResults;
   }
 
+
+  private void checkNotExecuted() {
+    // нужно проверить что мы еще не executed
+    if(executed){
+      throw  new  IllegalStateException("Executor already executed");
+    }
+  }
+  private void checkExecuted() {
+    // нужно проверить что мы еще не executed
+    if(!executed){
+      throw  new  IllegalStateException("Executor already executed");
+    }
+  }
   /*Для пары значений ВСЕГДА создавайте класс обертку*/
   private static class TaskAndValidator<T> {
     /*можно отойти от бездумного создания get и set*/
