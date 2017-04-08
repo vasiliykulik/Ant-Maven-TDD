@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -6,7 +7,7 @@ import java.util.List;
 /*Выглядят типизировано, Task принимаем любые, которые extends-ятся от нашего
 типа T, а в Validator любые от T и его super типов */
 public interface Executor<T> {
-    void addTask(Task<? extends T> task);
+        void addTask(Task<? extends T> task);
     void addTask(Task<? extends T> task, Validator<? super T> validator);
     void execute();
     List<T> getValidResults();
